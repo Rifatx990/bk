@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Bank Bookkeeper</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+  
+  <!-- Custom CSS -->
+  <style>
+    :root {
+      --primary-color: #1a73e8;
+      --secondary-color: #34a853;
+      --accent-color: #fbbc05;
+      --light-bg: #f8f9fa;
+      --dark-text: #202124;
+      --light-text: #5f6368;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark-text);
+      line-height: 1.6;
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      color: var(--primary-color) !important;
+    }
+    
+    .hero-section {
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+      padding: 4rem 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .hero-title {
+      color: var(--dark-text);
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    
+    .hero-subtitle {
+      color: var(--light-text);
+      font-size: 1.2rem;
+      max-width: 700px;
+      margin: 0 auto 2rem;
+    }
+    
+    .upload-container {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 2.5rem;
+      margin-top: 1rem;
+      transition: transform 0.3s ease;
+    }
+    
+    .upload-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+    
+    .upload-icon {
+      font-size: 3.5rem;
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+    }
+    
+    .file-upload-wrapper {
+      position: relative;
+      margin: 2rem 0;
+    }
+    
+    .file-upload-input {
+      display: none;
+    }
+    
+    .file-upload-label {
+      display: block;
+      border: 2px dashed #dadce0;
+      border-radius: 8px;
+      padding: 3rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .file-upload-label:hover {
+      border-color: var(--primary-color);
+      background-color: rgba(26, 115, 232, 0.03);
+    }
+    
+    .file-upload-label.dragover {
+      border-color: var(--secondary-color);
+      background-color: rgba(52, 168, 83, 0.05);
+    }
+    
+    .file-info {
+      display: none;
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: var(--light-bg);
+      border-radius: 8px;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+    
+    .btn-primary:hover {
+      background-color: #0d62d9;
+      border-color: #0d62d9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(26, 115, 232, 0.3);
+    }
+    
+    .features-section {
+      padding: 4rem 0;
+    }
+    
+    .feature-card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 2rem;
+      height: 100%;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+      transition: transform 0.3s;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .feature-icon {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+    }
+    
+    .feature-title {
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    
+    .footer {
+      background-color: var(--dark-text);
+      color: white;
+      padding: 2rem 0;
+      margin-top: 3rem;
+    }
+    
+    .supported-formats {
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .format-badge {
+      background-color: #e8f0fe;
+      color: var(--primary-color);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+      display: inline-block;
+      font-size: 0.9rem;
+    }
+    
+    .process-animation {
+      display: none;
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+    
+    .spinner {
+      width: 3rem;
+      height: 3rem;
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .hero-section {
+        padding: 2rem 0;
+      }
+      
+      .upload-container {
+        padding: 1.5rem;
+      }
+      
+      .feature-card {
+        margin-bottom: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        <i class="bi bi-calculator-fill me-2"></i>
+        AI Bank Bookkeeper
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">How It Works</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Contact</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+          <h1 class="hero-title">AI-Powered Financial Document Processing</h1>
+          <p class="hero-subtitle">
+            Upload your bank statements and receipts to automatically extract, categorize, 
+            and organize financial data with our advanced AI technology.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Upload Section -->
+  <section class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="upload-container text-center">
+          <div class="upload-icon">
+            <i class="bi bi-cloud-upload-fill"></i>
+          </div>
+          <h2 class="mb-3">Upload Bank Statement or Receipt</h2>
+          <p class="text-muted mb-4">
+            Upload your financial documents in PDF, JPG, PNG, or CSV format.
+            Our AI will process and categorize the transactions automatically.
+          </p>
+          
+          <!-- Upload Form -->
+          <form method="post" action="/upload" enctype="multipart/form-data" id="uploadForm">
+            <div class="file-upload-wrapper">
+              <input type="file" class="file-upload-input" id="fileInput" name="file" required accept=".pdf,.jpg,.jpeg,.png,.csv,.xlsx,.xls">
+              <label for="fileInput" class="file-upload-label" id="dropArea">
+                <i class="bi bi-file-earmark-arrow-up display-4 text-muted mb-3"></i>
+                <h5>Drag & drop your file here</h5>
+                <p class="text-muted">or click to browse</p>
+                <p class="text-muted small">Max file size: 10MB</p>
+              </label>
+              <div class="file-info" id="fileInfo">
+                <p class="mb-1"><strong>Selected file:</strong> <span id="fileName"></span></p>
+                <p class="mb-0"><strong>File size:</strong> <span id="fileSize"></span></p>
+              </div>
+            </div>
+            
+            <!-- Supported Formats -->
+            <div class="supported-formats">
+              <h6 class="mb-3">Supported Formats</h6>
+              <div>
+                <span class="format-badge">PDF</span>
+                <span class="format-badge">JPG/JPEG</span>
+                <span class="format-badge">PNG</span>
+                <span class="format-badge">CSV</span>
+                <span class="format-badge">Excel</span>
+                <span class="format-badge">Text</span>
+              </div>
+            </div>
+            
+            <!-- Processing Animation (Initially Hidden) -->
+            <div class="process-animation" id="processingAnimation">
+              <div class="spinner"></div>
+              <p class="mb-0">Processing your document with AI...</p>
+              <p class="text-muted small">This may take a few moments</p>
+            </div>
+            
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary btn-lg mt-4" id="submitBtn">
+              <i class="bi bi-gear-fill me-2"></i> Process Statement
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <div class="container">
+      <div class="row mb-5">
+        <div class="col text-center">
+          <h2>How It Works</h2>
+          <p class="text-muted">Our AI-powered platform makes financial document processing simple and efficient</p>
+        </div>
+      </div>
+      
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="feature-card text-center">
+            <div class="feature-icon">
+              <i class="bi bi-upload"></i>
+            </div>
+            <h4 class="feature-title">1. Upload Documents</h4>
+            <p class="text-muted">
+              Upload bank statements, receipts, or invoices in various formats. 
+              Our system supports PDF, images, CSV, and Excel files.
+            </p>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="feature-card text-center">
+            <div class="feature-icon">
+              <i class="bi bi-cpu"></i>
+            </div>
+            <h4 class="feature-title">2. AI Processing</h4>
+            <p class="text-muted">
+              Advanced AI algorithms extract text, categorize transactions, 
+              and identify key financial data with high accuracy.
+            </p>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="feature-card text-center">
+            <div class="feature-icon">
+              <i class="bi bi-bar-chart-fill"></i>
+            </div>
+            <h4 class="feature-title">3. Get Insights</h4>
+            <p class="text-muted">
+              Receive organized financial data, expense reports, 
+              and actionable insights to help manage your finances better.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h5>AI Bank Bookkeeper</h5>
+          <p>Automating financial document processing with advanced AI technology.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p>&copy; 2023 AI Bank Bookkeeper. All rights reserved.</p>
+          <p class="mb-0">Privacy Policy | Terms of Service</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Custom JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const fileInput = document.getElementById('fileInput');
+      const dropArea = document.getElementById('dropArea');
+      const fileInfo = document.getElementById('fileInfo');
+      const fileName = document.getElementById('fileName');
+      const fileSize = document.getElementById('fileSize');
+      const uploadForm = document.getElementById('uploadForm');
+      const processingAnimation = document.getElementById('processingAnimation');
+      const submitBtn = document.getElementById('submitBtn');
+      
+      // Prevent default drag behaviors
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+      });
+      
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      
+      // Highlight drop area when item is dragged over it
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+      });
+      
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+      });
+      
+      function highlight() {
+        dropArea.classList.add('dragover');
+      }
+      
+      function unhighlight() {
+        dropArea.classList.remove('dragover');
+      }
+      
+      // Handle dropped files
+      dropArea.addEventListener('drop', handleDrop, false);
+      
+      function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files.length) {
+          fileInput.files = files;
+          updateFileInfo(files[0]);
+        }
+      }
+      
+      // Handle file selection via click
+      fileInput.addEventListener('change', function() {
+        if (this.files.length) {
+          updateFileInfo(this.files[0]);
+        }
+      });
+      
+      // Update file information display
+      function updateFileInfo(file) {
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        fileInfo.style.display = 'block';
+      }
+      
+      // Format file size
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      }
+      
+      // Form submission handler
+      uploadForm.addEventListener('submit', function(e) {
+        // In a real application, this would submit to the server
+        // For this demo, we'll simulate processing
+        
+        // Check if a file is selected
+        if (!fileInput.files.length) {
+          e.preventDefault();
+          alert('Please select a file to upload.');
+          return;
+        }
+        
+        // Show processing animation
+        submitBtn.style.display = 'none';
+        processingAnimation.style.display = 'block';
+        
+        // Simulate processing delay
+        setTimeout(() => {
+          alert('File uploaded successfully! In a real application, this would process the file and show results.');
+          processingAnimation.style.display = 'none';
+          submitBtn.style.display = 'inline-block';
+          
+          // Reset form
+          uploadForm.reset();
+          fileInfo.style.display = 'none';
+        }, 3000);
+        
+        // Prevent actual form submission for demo
+        e.preventDefault();
+      });
+    });
+  </script>
+</body>
+</html>
