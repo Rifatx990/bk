@@ -1,10 +1,10 @@
 # =====================================================
-# app.py — AI Bank Statement Bookkeeper (FINAL FIXED)
+# app.py — AI Bank Statement Bookkeeper (FIXED & SAFE)
 # =====================================================
 
 import os, time, json, threading, csv
 from flask import Flask, render_template, request, send_file
-import openai
+from openai import OpenAI
 import pytesseract
 from PIL import Image
 import fitz  # PyMuPDF
@@ -13,11 +13,13 @@ from fpdf import FPDF
 # ---------------- CONFIG ----------------
 UPLOAD_DIR = "storage"
 DELETE_AFTER = 300  # seconds (5 minutes)
-openai.api_key = "YOUR_OPENAI_API_KEY"
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") or "YOUR_OPENAI_API_KEY"
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 app = Flask(__name__)
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 # ---------------- AUTO DELETE ----------------
 def auto_delete(path):
@@ -26,14 +28,19 @@ def auto_delete(path):
         os.remove(path)
 
 def schedule_delete(path):
-    threading.Thread(target=auto_delete, args=(path,), daemon=True).start()
+    threading.Thread(
+        target=auto_delete,
+        args=(path,),
+        daemon=True
+    ).start()
 
 # ---------------- TEXT EXTRACTION ----------------
 def extract_text(path):
     ext = path.split(".")[-1].lower()
 
     if ext == "txt":
-        return open(path, "r", encoding="utf-8", errors="ignore").read()
+        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            return f.read()
 
     if ext == "pdf":
         doc = fitz.open(path)
@@ -44,42 +51,74 @@ def extract_text(path):
 
     return ""
 
-# ---------------- AI PARSER ----------------
+# ---------------- AI PARSER (BANK-GRADE) ----------------
 def parse_with_ai(text):
     prompt = f"""
-You are a professional BANK STATEMENT BOOKKEEPER.
+You are a senior BANK STATEMENT ACCOUNTANT.
 
-Extract ALL transactions.
-Transaction ID is MANDATORY.
-If missing, generate a realistic bank-style ID.
+Extract ALL financial transactions from the text below.
 
-Return ONLY valid JSON array.
-NO explanation. NO markdown.
+STRICT RULES (DO NOT BREAK):
+1. Every row MUST have a transaction_id
+   - Use bank reference numbers if present
+   - Otherwise generate a realistic bank-style ID (alphanumeric)
+2. transaction must be ONLY:
+   - Income (for Credit / Deposit / CR)
+   - Expense (for Debit / Withdrawal / DR)
+3. Ignore running balance columns completely
+4. Amount must be numeric (no commas, no currency symbols)
+5. Date must be YYYY-MM-DD
+6. card = payment method or channel:
+   Cash / Bank / Card / ATM / Bkash / Nagad / Online
+7. name = counterparty or source
+8. note = cleaned narration
+9. DO NOT invent fake transactions
+10. DO NOT explain anything
 
-FORMAT:
+Return ONLY valid JSON array in this exact format:
+
 [
   {{
     "transaction_id": "",
     "name": "",
-    "date": "YYYY-MM-DD",
-    "transaction": "Income or Expense",
+    "date": "",
+    "transaction": "",
     "amount": 0,
     "note": "",
-    "card": "Cash/Bank/Card/Bkash/Nagad"
+    "card": ""
   }}
 ]
 
-TEXT:
+BANK STATEMENT TEXT:
 {text}
 """
 
-    res = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4.1-mini",
         temperature=0,
-        messages=[{"role": "user", "content": prompt}]
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
     )
 
-    return json.loads(res.choices[0].message.content)
+    content = response.choices[0].message.content.strip()
+
+    # -------- HARD JSON VALIDATION --------
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError:
+        raise ValueError("Invalid JSON returned by AI")
+
+    required = {
+        "transaction_id", "name", "date",
+        "transaction", "amount", "note", "card"
+    }
+
+    for row in data:
+        if not required.issubset(row):
+            raise ValueError(f"Missing required fields: {row}")
+
+    return data
 
 # ---------------- CSV ----------------
 def generate_csv(data, path):
@@ -106,16 +145,16 @@ def generate_pdf(data, path):
     pdf.add_page()
     pdf.set_font("Arial", size=9)
 
-    pdf.cell(0, 8, "AI Generated Bank Statement", ln=1)
+    pdf.cell(0, 8, "AI Generated Bank Statement", ln=True)
 
     for d in data:
-        row = (
+        line = (
             f"ID: {d['transaction_id']} | "
             f"{d['date']} | {d['name']} | "
             f"{d['transaction']} | {d['amount']} | "
             f"{d['card']} | {d['note']}"
         )
-        pdf.multi_cell(0, 7, row)
+        pdf.multi_cell(0, 7, line)
 
     pdf.output(path)
 
@@ -127,7 +166,8 @@ def index():
 @app.route("/upload", methods=["POST"])
 def upload():
     file = request.files["file"]
-    fname = str(int(time.time())) + "_" + file.filename
+
+    fname = f"{int(time.time())}_{file.filename}"
     path = os.path.join(UPLOAD_DIR, fname)
     file.save(path)
 
