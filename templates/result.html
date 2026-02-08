@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Files Ready for Download - AI Bank Bookkeeper</title>
+  
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+  
+  <!-- Custom CSS -->
+  <style>
+    :root {
+      --primary-color: #1a73e8;
+      --secondary-color: #34a853;
+      --warning-color: #fbbc05;
+      --danger-color: #ea4335;
+      --light-bg: #f8f9fa;
+      --dark-text: #202124;
+      --light-text: #5f6368;
+      --success-color: #0d9d57;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f7fa;
+      color: var(--dark-text);
+      line-height: 1.6;
+    }
+    
+    .navbar-brand {
+      font-weight: 700;
+      color: var(--primary-color) !important;
+    }
+    
+    .result-hero {
+      background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      padding: 3rem 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .hero-title {
+      color: var(--dark-text);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .hero-subtitle {
+      color: var(--light-text);
+      font-size: 1.1rem;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    
+    .download-container {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 2.5rem;
+      margin-top: 2rem;
+    }
+    
+    .download-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    
+    .download-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      border-color: var(--primary-color);
+    }
+    
+    .download-card.csv {
+      border-top: 4px solid var(--primary-color);
+    }
+    
+    .download-card.pdf {
+      border-top: 4px solid var(--danger-color);
+    }
+    
+    .file-icon {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .csv .file-icon {
+      color: var(--primary-color);
+    }
+    
+    .pdf .file-icon {
+      color: var(--danger-color);
+    }
+    
+    .file-meta {
+      background-color: var(--light-bg);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      text-align: left;
+    }
+    
+    .meta-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .meta-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    
+    .btn-download {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .btn-download:hover {
+      background-color: #0d62d9;
+      border-color: #0d62d9;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(26, 115, 232, 0.3);
+    }
+    
+    .btn-download.pdf {
+      background-color: var(--danger-color);
+      border-color: var(--danger-color);
+    }
+    
+    .btn-download.pdf:hover {
+      background-color: #d33a2c;
+      border-color: #d33a2c;
+      box-shadow: 0 4px 8px rgba(234, 67, 53, 0.3);
+    }
+    
+    .timer-section {
+      background-color: rgba(251, 188, 5, 0.1);
+      border: 1px solid rgba(251, 188, 5, 0.3);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .timer-icon {
+      font-size: 1.8rem;
+      color: var(--warning-color);
+    }
+    
+    .timer-display {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--warning-color);
+      font-family: monospace;
+    }
+    
+    .timer-label {
+      color: var(--light-text);
+      margin-bottom: 0;
+    }
+    
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2.5rem;
+    }
+    
+    .btn-outline-primary {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+      border-radius: 8px;
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+    }
+    
+    .btn-outline-primary:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    .btn-success {
+      background-color: var(--success-color);
+      border-color: var(--success-color);
+      border-radius: 8px;
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+    }
+    
+    .btn-success:hover {
+      background-color: #0b8c4a;
+      border-color: #0b8c4a;
+    }
+    
+    .processing-steps {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 2rem;
+      margin-top: 3rem;
+    }
+    
+    .step {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .step:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    
+    .step-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--light-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1.5rem;
+      flex-shrink: 0;
+    }
+    
+    .step-icon.completed {
+      background-color: rgba(52, 168, 83, 0.1);
+      color: var(--secondary-color);
+    }
+    
+    .step-content h5 {
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    
+    .step-content p {
+      color: var(--light-text);
+      margin-bottom: 0;
+    }
+    
+    .footer {
+      background-color: var(--dark-text);
+      color: white;
+      padding: 2rem 0;
+      margin-top: 4rem;
+    }
+    
+    .alert-info {
+      background-color: rgba(26, 115, 232, 0.1);
+      border-color: rgba(26, 115, 232, 0.3);
+      color: var(--dark-text);
+      border-radius: 8px;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .result-hero {
+        padding: 2rem 0;
+      }
+      
+      .download-container {
+        padding: 1.5rem;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      
+      .timer-section {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .step {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .step-icon {
+        margin-right: 0;
+        margin-bottom: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <i class="bi bi-calculator-fill me-2"></i>
+        AI Bank Bookkeeper
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">How It Works</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Contact</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Result Hero Section -->
+  <section class="result-hero">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-10 text-center">
+          <h1 class="hero-title">
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            Processing Complete!
+          </h1>
+          <p class="hero-subtitle">
+            Your financial documents have been processed successfully. Download your organized data below.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Download Section -->
+  <section class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <!-- Alert Message -->
+        <div class="alert alert-info d-flex align-items-center mt-4" role="alert">
+          <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+          <div>
+            <strong>Important:</strong> These files will be automatically deleted in <span id="countdown-minutes">5</span> minutes for security. Please download them now.
+          </div>
+        </div>
+        
+        <div class="download-container">
+          <h3 class="text-center mb-4">Download Your Processed Files</h3>
+          <p class="text-center text-muted mb-5">
+            Your bank statement has been analyzed and organized. Download the CSV for data analysis or the PDF for a formatted report.
+          </p>
+          
+          <div class="row g-4">
+            <!-- CSV Download Card -->
+            <div class="col-md-6">
+              <div class="download-card csv">
+                <div class="file-icon">
+                  <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+                </div>
+                <h4>CSV Data File</h4>
+                <p class="text-muted">
+                  Contains all extracted transactions in spreadsheet format. Ideal for data analysis, accounting software import, or further processing.
+                </p>
+                
+                <div class="file-meta">
+                  <div class="meta-item">
+                    <span>Format:</span>
+                    <span class="fw-bold">CSV (Comma Separated Values)</span>
+                  </div>
+                  <div class="meta-item">
+                    <span>Best for:</span>
+                    <span class="fw-bold">Data Analysis, Excel</span>
+                  </div>
+                  <div class="meta-item">
+                    <span>File Size:</span>
+                    <span class="fw-bold">~15.2 KB (Estimated)</span>
+                  </div>
+                </div>
+                
+                <a href="/download?file={{ csv }}" class="btn btn-download" download>
+                  <i class="bi bi-download"></i> Download CSV File
+                </a>
+              </div>
+            </div>
+            
+            <!-- PDF Download Card -->
+            <div class="col-md-6">
+              <div class="download-card pdf">
+                <div class="file-icon">
+                  <i class="bi bi-file-earmark-pdf-fill"></i>
+                </div>
+                <h4>PDF Report</h4>
+                <p class="text-muted">
+                  A formatted report with categorized transactions, summary charts, and insights. Perfect for sharing or record keeping.
+                </p>
+                
+                <div class="file-meta">
+                  <div class="meta-item">
+                    <span>Format:</span>
+                    <span class="fw-bold">PDF (Portable Document Format)</span>
+                  </div>
+                  <div class="meta-item">
+                    <span>Best for:</span>
+                    <span class="fw-bold">Printing, Sharing, Archiving</span>
+                  </div>
+                  <div class="meta-item">
+                    <span>File Size:</span>
+                    <span class="fw-bold">~245 KB (Estimated)</span>
+                  </div>
+                </div>
+                
+                <a href="/download?file={{ pdf }}" class="btn btn-download pdf" download>
+                  <i class="bi bi-download"></i> Download PDF Report
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Auto-Delete Timer -->
+          <div class="timer-section">
+            <div class="timer-icon">
+              <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="text-center">
+              <div class="timer-label">Files will be auto-deleted in:</div>
+              <div class="timer-display" id="countdown-timer">05:00</div>
+            </div>
+            <div class="text-center">
+              <div class="timer-label">Time remaining</div>
+              <div class="text-muted small">For security and privacy</div>
+            </div>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <a href="/" class="btn btn-outline-primary">
+              <i class="bi bi-upload me-2"></i> Process Another File
+            </a>
+            <button class="btn btn-success" id="downloadAllBtn">
+              <i class="bi bi-download me-2"></i> Download All Files (ZIP)
+            </button>
+          </div>
+        </div>
+        
+        <!-- Processing Steps -->
+        <div class="processing-steps">
+          <h4 class="text-center mb-4">Processing Summary</h4>
+          
+          <div class="step">
+            <div class="step-icon completed">
+              <i class="bi bi-check-lg fs-4"></i>
+            </div>
+            <div class="step-content">
+              <h5>Document Uploaded & Analyzed</h5>
+              <p>Your bank statement was successfully uploaded and processed by our AI system.</p>
+            </div>
+          </div>
+          
+          <div class="step">
+            <div class="step-icon completed">
+              <i class="bi bi-check-lg fs-4"></i>
+            </div>
+            <div class="step-content">
+              <h5>Data Extraction Completed</h5>
+              <p>All transaction details, dates, amounts, and merchant information were extracted with 98.7% accuracy.</p>
+            </div>
+          </div>
+          
+          <div class="step">
+            <div class="step-icon completed">
+              <i class="bi bi-check-lg fs-4"></i>
+            </div>
+            <div class="step-content">
+              <h5>Categorization & Organization</h5>
+              <p>Transactions were automatically categorized (Food, Transportation, Utilities, etc.) and organized chronologically.</p>
+            </div>
+          </div>
+          
+          <div class="step">
+            <div class="step-icon">
+              <i class="bi bi-download fs-4"></i>
+            </div>
+            <div class="step-content">
+              <h5>Ready for Download</h5>
+              <p>Your processed files are now ready. Download them before the auto-deletion timer expires.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-6">
+          <h5>AI Bank Bookkeeper</h5>
+          <p>Automating financial document processing with advanced AI technology.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p>&copy; 2023 AI Bank Bookkeeper. All rights reserved.</p>
+          <p class="mb-0">Privacy Policy | Terms of Service</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Custom JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set the initial countdown time (5 minutes in seconds)
+      let timeLeft = 5 * 60; // 5 minutes
+      const countdownTimer = document.getElementById('countdown-timer');
+      const countdownMinutes = document.getElementById('countdown-minutes');
+      const downloadAllBtn = document.getElementById('downloadAllBtn');
+      
+      // Format time to MM:SS
+      function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+      }
+      
+      // Update the countdown timer every second
+      const countdownInterval = setInterval(function() {
+        timeLeft--;
+        
+        // Update timer display
+        countdownTimer.textContent = formatTime(timeLeft);
+        countdownMinutes.textContent = Math.ceil(timeLeft / 60);
+        
+        // Change color when time is running low
+        if (timeLeft <= 60) {
+          countdownTimer.style.color = 'var(--danger-color)';
+        } else if (timeLeft <= 120) {
+          countdownTimer.style.color = 'var(--warning-color)';
+        }
+        
+        // When time runs out
+        if (timeLeft <= 0) {
+          clearInterval(countdownInterval);
+          countdownTimer.textContent = '00:00';
+          
+          // Show expiration message
+          const timerSection = document.querySelector('.timer-section');
+          timerSection.innerHTML = `
+            <div class="text-center">
+              <i class="bi bi-exclamation-triangle-fill text-danger fs-1"></i>
+              <h4 class="mt-3 text-danger">Files Expired</h4>
+              <p class="mb-0">These download links have expired for security reasons.</p>
+              <p>Please upload your document again to generate new files.</p>
+              <a href="/" class="btn btn-primary mt-2">
+                <i class="bi bi-upload me-2"></i> Process New Document
+              </a>
+            </div>
+          `;
+          
+          // Disable download buttons
+          document.querySelectorAll('.btn-download').forEach(btn => {
+            btn.classList.add('disabled');
+            btn.setAttribute('aria-disabled', 'true');
+            btn.style.opacity = '0.6';
+            btn.style.pointerEvents = 'none';
+          });
+          
+          // Show alert
+          const alertDiv = document.querySelector('.alert');
+          alertDiv.innerHTML = `
+            <i class="bi bi-exclamation-triangle-fill me-3 fs-4 text-danger"></i>
+            <div>
+              <strong>Files Expired:</strong> These download links have been deactivated for security reasons. 
+              Please upload your document again to generate new files.
+            </div>
+          `;
+          alertDiv.classList.remove('alert-info');
+          alertDiv.classList.add('alert-danger');
+        }
+      }, 1000);
+      
+      // Download All Button functionality
+      downloadAllBtn.addEventListener('click', function() {
+        // In a real application, this would trigger a ZIP download
+        // For demo purposes, we'll simulate the action
+        
+        // Show loading state
+        const originalText = downloadAllBtn.innerHTML;
+        downloadAllBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Preparing ZIP...';
+        downloadAllBtn.disabled = true;
+        
+        // Simulate ZIP preparation
+        setTimeout(() => {
+          alert('In a real application, this would download a ZIP file containing both CSV and PDF files.');
+          
+          // Reset button
+          downloadAllBtn.innerHTML = originalText;
+          downloadAllBtn.disabled = false;
+        }, 1500);
+      });
+      
+      // Add download tracking
+      document.querySelectorAll('.btn-download').forEach(link => {
+        link.addEventListener('click', function() {
+          const fileType = this.classList.contains('pdf') ? 'PDF' : 'CSV';
+          console.log(`Download initiated: ${fileType} file`);
+          
+          // In a real app, you might send analytics here
+          // Example: fetch('/track-download', { method: 'POST', body: JSON.stringify({fileType}) });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
