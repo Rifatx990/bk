@@ -1,0 +1,17 @@
+<!-- =========================
+     templates/index.html
+========================= -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Bank Bookkeeper</title>
+</head>
+<body>
+  <h2>Upload Bank Statement / Receipt</h2>
+  <form method="post" action="/upload" enctype="multipart/form-data">
+    <input type="file" name="file" required>
+    <br><br>
+    <button type="submit">Process Statement</button>
+  </form>
+</body>
+</html>
